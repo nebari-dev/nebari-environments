@@ -1,5 +1,7 @@
 # nebari-environments
 
+[![Publish Environments](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml/badge.svg)](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml)
+
 Community-contributed [Pixi](https://pixi.sh) environments published to [`quay.io/nebari_environments`](https://quay.io/organization/nebari_environments).
 
 ## Repository structure
@@ -11,6 +13,33 @@ environments/
 ```
 
 Each directory under `environments/` is a standalone Pixi environment. The directory name is used as the environment name when publishing.
+
+## Using an environment
+
+Install the [nebi](https://github.com/nebari-dev/nebi) CLI, then import any published environment:
+
+```bash
+nebi import quay.io/nebari_environments/data-science-demo:v1
+```
+
+This pulls the `pixi.toml` and `pixi.lock` into the current directory. Then install and activate with [Pixi](https://pixi.sh):
+
+```bash
+pixi install
+pixi shell
+```
+
+You can also import into a specific directory or as a global workspace:
+
+```bash
+# Import into a specific directory
+nebi import quay.io/nebari_environments/data-science-demo:v1 -o ./my-project
+
+# Import as a global workspace
+nebi import quay.io/nebari_environments/data-science-demo:v1 --global data-science
+```
+
+Browse available environments at [`quay.io/nebari_environments`](https://quay.io/organization/nebari_environments).
 
 ## Contributing an environment
 

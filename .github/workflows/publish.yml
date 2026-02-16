@@ -25,6 +25,8 @@ jobs:
           NEBI_DATABASE_DSN: /tmp/nebi.db
           NEBI_QUEUE_TYPE: memory
           NEBI_AUTH_JWT_SECRET: ci-ephemeral-secret
+          ADMIN_USERNAME: admin
+          ADMIN_PASSWORD: admin
         run: |
           nebi serve &
           # Wait for server to be ready
@@ -38,13 +40,11 @@ jobs:
 
       - name: Login to nebi
         run: |
-          nebi login http://localhost:8460 --username admin --password admin
+          echo "admin" | nebi login http://localhost:8460 --username admin --password-stdin
 
       - name: Add quay.io registry
         run: |
-          nebi registry add quay.io \
-            --username "${{ secrets.QUAY_USERNAME }}" \
-            --password "${{ secrets.QUAY_PASSWORD }}"
+          echo "${{ secrets.QUAY_PASSWORD }}" | nebi registry add --name quay --url quay.io --namespace nebari_environments --username "${{ secrets.QUAY_USERNAME }}" --password-stdin --default
 
       - name: Push and publish environments
         run: |
@@ -56,7 +56,7 @@ jobs:
             echo "==> Publishing ${env_name}:${version}"
             cd "$env_dir"
             nebi push "${env_name}:${version}"
-            nebi publish "${env_name}"
+            nebi publish "${env_name}" --registry quay --repo "${env_name}"
             cd "$GITHUB_WORKSPACE"
           done
 

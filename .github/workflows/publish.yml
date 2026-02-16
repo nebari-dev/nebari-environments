@@ -57,6 +57,16 @@ jobs:
             cd "$env_dir"
             nebi push "${env_name}:${version}"
             nebi publish "${env_name}" --registry quay --repo "${env_name}"
+
+            # Ensure the repository is public on quay.io
+            curl -sf -X POST \
+              -H "Authorization: Bearer ${{ secrets.QUAY_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"visibility": "public"}' \
+              "https://quay.io/api/v1/repository/nebari_environments/${env_name}/changevisibility" \
+              && echo "  -> Set ${env_name} to public" \
+              || echo "  -> Warning: could not set ${env_name} to public (may already be public)"
+
             cd "$GITHUB_WORKSPACE"
           done
 

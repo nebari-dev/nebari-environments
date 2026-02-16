@@ -48,6 +48,7 @@ Nebi handles deduplication server-side, so all environments are published on eve
 |--------|---------|
 | `QUAY_USERNAME` | quay.io robot account username |
 | `QUAY_PASSWORD` | quay.io robot account password/token |
+| `QUAY_API_TOKEN` | quay.io OAuth token for setting repos to public |
 
 ### Quay.io setup
 
@@ -62,3 +63,10 @@ The robot account used by CI needs permission to **create new repositories** in 
 5. Add the robot account to that team (e.g. `nebari_environments+ci`)
 
 The robot account credentials are then stored as `QUAY_USERNAME` and `QUAY_PASSWORD` GitHub secrets on this repository.
+
+New repositories on quay.io are **private by default**. The workflow automatically sets each repository to public after publishing using the quay.io API. This requires an OAuth token (`QUAY_API_TOKEN`) with the **"Administer Repositories"** scope. To generate it:
+
+1. In the same org, navigate to **Applications** (under org settings)
+2. Create a new OAuth application (e.g. `ci-visibility`)
+3. Generate a token with the **"Administer Repositories"** permission
+4. Store the token as the `QUAY_API_TOKEN` GitHub secret on this repository

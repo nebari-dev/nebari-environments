@@ -1,0 +1,65 @@
+name: Publish Environments
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download nebi
+        env:
+          NEBI_VERSION: "0.6.0-rc2"
+        run: |
+          curl -sL "https://github.com/nebari-dev/nebi/releases/download/v${NEBI_VERSION}/nebi_${NEBI_VERSION}_linux_x86_64.tar.gz" \
+            | tar xz -C /usr/local/bin nebi
+          nebi version
+
+      - name: Start nebi server
+        env:
+          NEBI_DATABASE_DRIVER: sqlite
+          NEBI_DATABASE_DSN: /tmp/nebi.db
+          NEBI_QUEUE_TYPE: memory
+          NEBI_AUTH_JWT_SECRET: ci-ephemeral-secret
+        run: |
+          nebi serve &
+          # Wait for server to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8460/api/v1/health > /dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Login to nebi
+        run: |
+          nebi login http://localhost:8460 --username admin --password admin
+
+      - name: Add quay.io registry
+        run: |
+          nebi registry add quay.io \
+            --username "${{ secrets.QUAY_USERNAME }}" \
+            --password "${{ secrets.QUAY_PASSWORD }}"
+
+      - name: Push and publish environments
+        run: |
+          for pixi_toml in environments/*/pixi.toml; do
+            env_dir=$(dirname "$pixi_toml")
+            env_name=$(basename "$env_dir")
+            version=$(grep '^version' "$pixi_toml" | sed 's/.*= *"\(.*\)"/\1/')
+
+            echo "==> Publishing ${env_name}:${version}"
+            cd "$env_dir"
+            nebi push "${env_name}:${version}"
+            nebi publish "${env_name}"
+            cd "$GITHUB_WORKSPACE"
+          done
+
+      - name: Shutdown server
+        if: always()
+        run: pkill nebi || true

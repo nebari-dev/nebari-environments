@@ -1,18 +1,8 @@
-# nebari-environments
+# Nebari Environments
 
 [![Publish Environments](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml/badge.svg)](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml)
 
-Community-contributed [Pixi](https://pixi.sh) environments published to [`quay.io/nebari_environments`](https://quay.io/organization/nebari_environments).
-
-## Repository structure
-
-```
-environments/
-  <env-name>/
-    pixi.toml
-```
-
-Each directory under `environments/` is a standalone Pixi environment. The directory name is used as the environment name when publishing.
+A collection of community-contributed, ready-to-use [Pixi](https://pixi.sh) environments for data science, machine learning, and scientific computing. Environments are automatically published as OCI artifacts to [`quay.io/nebari_environments`](https://quay.io/organization/nebari_environments) and can be imported with a single command using the [nebi](https://github.com/nebari-dev/nebi) CLI.
 
 ## Using an environment
 
@@ -60,6 +50,16 @@ Browse available environments at [`quay.io/nebari_environments`](https://quay.io
    # add your packages here
    ```
 3. Open a pull request. Once merged to `main`, the environment will be automatically published to `quay.io/nebari_environments/my-env`.
+
+## Repository structure
+
+```
+environments/
+  <env-name>/
+    pixi.toml
+```
+
+Each directory under `environments/` is a standalone Pixi environment. The directory name is used as the environment name when publishing.
 
 ## CI / Publishing
 

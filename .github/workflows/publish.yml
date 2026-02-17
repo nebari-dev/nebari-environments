@@ -70,6 +70,19 @@ jobs:
             cd "$GITHUB_WORKSPACE"
           done
 
+      - name: Summary
+        run: |
+          echo "## Published Environments" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | Version | Registry | Import Command |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------|---------|----------|----------------|" >> $GITHUB_STEP_SUMMARY
+          for pixi_toml in environments/*/pixi.toml; do
+            env_name=$(basename "$(dirname "$pixi_toml")")
+            version=$(grep '^version' "$pixi_toml" | sed 's/.*= *"\(.*\)"/\1/')
+            ref="quay.io/nebari_environments/${env_name}:latest"
+            echo "| ${env_name} | ${version} | [quay.io](https://quay.io/repository/nebari_environments/${env_name}) | \`nebi import ${ref}\` |" >> $GITHUB_STEP_SUMMARY
+          done
+
       - name: Shutdown server
         if: always()
         run: pkill nebi || true

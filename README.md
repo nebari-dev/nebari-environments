@@ -2,6 +2,8 @@
 
 [![Publish Environments](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml/badge.svg)](https://github.com/nebari-dev/nebari-environments/actions/workflows/publish.yml)
 
+![nebi import demo](nebi-import-demo.gif)
+
 A collection of community-contributed, ready-to-use [Pixi](https://pixi.sh) environments for data science, machine learning, and scientific computing. Environments are automatically published as OCI artifacts to [`quay.io/nebari_environments`](https://quay.io/organization/nebari_environments) and can be imported with a single command using the [nebi](https://github.com/nebari-dev/nebi) CLI.
 
 ## Using an environment

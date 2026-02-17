@@ -73,3 +73,32 @@ jobs:
       - name: Shutdown server
         if: always()
         run: pkill nebi || true
+
+  import-test:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download nebi
+        env:
+          NEBI_VERSION: "0.6.0-rc3"
+        run: |
+          curl -sL "https://github.com/nebari-dev/nebi/releases/download/v${NEBI_VERSION}/nebi_${NEBI_VERSION}_linux_x86_64.tar.gz" \
+            | tar xz -C /usr/local/bin nebi
+          nebi version
+
+      - name: Import environments from registry
+        run: |
+          for pixi_toml in environments/*/pixi.toml; do
+            env_name=$(basename "$(dirname "$pixi_toml")")
+            echo "==> Importing ${env_name}:latest"
+            nebi import "quay.io/nebari_environments/${env_name}:latest" -o "/tmp/${env_name}" --force
+
+            if [ ! -f "/tmp/${env_name}/pixi.toml" ]; then
+              echo "ERROR: pixi.toml not found after importing ${env_name}"
+              exit 1
+            fi
+            echo "  -> OK"
+          done
